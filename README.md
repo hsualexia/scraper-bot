@@ -2,9 +2,9 @@
 Scraping tool using Selenium to retrieve instagram users' followers
 
 # How to use:
-_Tested with Chrome & 5k followers_
-_Ensure that your laptop does not go into sleep mode when this bot is running_
-_If you would like to repeat the scrape for an existing user, please remove existing user.csv_
+_*Tested with Chrome & 5k followers_
+_**Ensure that your laptop does not go into sleep mode when this bot is running_
+_***If you would like to repeat the scrape for an existing user, please remove existing user.csv_
 1. Clone repository into specific directory, navigate to directory
 2. Install requirements using terminal or command line. You should run this command ```pip install -r requirements.txt```.
 3. Open run.py using a text editor and replace the 14th and 15th lines with your Instagram username and password (your personal account is not recommended).
