@@ -11,8 +11,10 @@ _If you would like to repeat the scrape for an existing user, please remove exis
 4. Open a terminal or cmd again and run the bot using this command: ```python run.py```.
 5. Enter the username of the person whose followers you want to scrape.
 
-# What can be improved:
+# What can be added upon request:
 1. Check for repeated handles if the same targeted user has been scrapped again
 2. Implement a safe stop
 3. Reconsider how to handle larger number of followers
 4. Implement to rename duplicated file names
+
+#### Adapted from https://github.com/redianmarku/instagram-follower-scraper
