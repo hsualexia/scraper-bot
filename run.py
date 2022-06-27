@@ -1,4 +1,3 @@
-import os
 import time
 import selenium
 from selenium import webdriver
@@ -9,22 +8,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager as CM
 
+import pandas as pd
+
 # Complete these 2 fields ==================
-USERNAME = 'your instagram username'
-PASSWORD = 'your instagram password'
+USERNAME = ''
+PASSWORD = ''
 # ==========================================
 
 TIMEOUT = 15
 
-
 def scrape():
     usr = input('[Required] - Whose followers do you want to scrape: ')
 
-    user_input = int(
-        input('[Required] - How many followers do you want to scrape (60-500 recommended): '))
-
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")
     options.add_argument('--no-sandbox')
     options.add_argument("--log-level=3")
     mobile_emulation = {
@@ -38,7 +34,7 @@ def scrape():
 
     time.sleep(2)
 
-    print("[Info] - Logging in...")
+    print("Logging in...")
 
     user_element = WebDriverWait(bot, TIMEOUT).until(
         EC.presence_of_element_located((
@@ -65,39 +61,53 @@ def scrape():
     bot.get('https://www.instagram.com/{}/'.format(usr))
 
     time.sleep(3.5)
+    
+    follower_number = WebDriverWait(bot, TIMEOUT).until(
+        EC.visibility_of_element_located((
+            By.CSS_SELECTOR, "a[href$='/followers/'] > div > span"))).text
+
+    follower_number = follower_number.replace(',', '')
+
+    time.sleep(3.5)
 
     WebDriverWait(bot, TIMEOUT).until(
-        EC.presence_of_element_located((
-            By.XPATH, '//*[@id="react-root"]/section/main/div/ul/li[2]/a'))).click()
+        EC.element_to_be_clickable((
+            By.CSS_SELECTOR, "a[href$='/followers/'] > div"))).click()
 
-    time.sleep(2)
+    time.sleep(5)
 
-    print('[Info] - Scraping...')
+    total_time = 3.5 * int(follower_number) // 600
 
-    users = set()
+    print('Grab a cup of coffee, we are going to scroll to the end! It will take approx. {} minutes'.format(total_time))
 
-    for _ in range(round(user_input // 10)):
+    data = []
+    reached_scroll_end = False
+    last_height = bot.execute_script("return document.body.scrollHeight")
 
+    while not reached_scroll_end:
         ActionChains(bot).send_keys(Keys.END).perform()
+        time.sleep(3.5)
+        new_height = bot.execute_script("return document.body.scrollHeight")
+        if last_height == new_height:
+            reached_scroll_end = True
+        else:
+            last_height = new_height
 
-        time.sleep(2)
+    followers = bot.find_elements_by_tag_name('a')
 
-        followers = bot.find_elements_by_xpath(
-            '//*[@id="react-root"]/section/main/div/ul/div/li/div/div[1]/div[2]/div[1]/a')
+    for i in followers:
+        handle = i.get_attribute('href').split("/")[3]
+        data.append(handle)
+    
+    cleanedList = list(dict.fromkeys(data))
+    cleanedList.remove('accounts')
+    cleanedList.remove('')
+    cleanedList.remove('jdoejdoe1423')
+    cleanedList.remove('explore')
 
-        # Getting url from href attribute
-        for i in followers:
-            if i.get_attribute('href'):
-                users.add(i.get_attribute('href').split("/")[3])
-            else:
-                continue
+    dictionary = {'userhandles': cleanedList}
 
-    print('[Info] - Saving...')
-    print('[DONE] - Your followers are saved in followers.txt file!')
-
-    with open('followers.txt', 'a') as file:
-        file.write('\n'.join(users) + "\n")
-
+    pd.DataFrame(dictionary).to_csv('{}.csv'.format(usr))
 
 if __name__ == '__main__':
     scrape()
