@@ -74,22 +74,20 @@ def scrape():
         EC.element_to_be_clickable((
             By.CSS_SELECTOR, "a[href$='/followers/'] > div"))).click()
 
-    time.sleep(5)
-
-    total_time = 3.5 * int(follower_number) // 600
-
+    total_time = 5 * int(follower_number) // 600
     print('Grab a cup of coffee, we are going to scroll to the end! It will take approx. {} minutes'.format(total_time))
 
+    time.sleep(10)
+
     data = []
-    reached_scroll_end = False
     last_height = bot.execute_script("return document.body.scrollHeight")
 
-    while not reached_scroll_end:
+    for _ in range(round(int(follower_number) // 10)):
         ActionChains(bot).send_keys(Keys.END).perform()
-        time.sleep(3.5)
+        time.sleep(5)
         new_height = bot.execute_script("return document.body.scrollHeight")
         if last_height == new_height:
-            reached_scroll_end = True
+            break
         else:
             last_height = new_height
 
@@ -100,10 +98,17 @@ def scrape():
         data.append(handle)
     
     cleanedList = list(dict.fromkeys(data))
-    cleanedList.remove('accounts')
-    cleanedList.remove('')
-    cleanedList.remove('jdoejdoe1423')
-    cleanedList.remove('explore')
+
+    print("Scraped handles: ", cleanedList)
+
+    if '' in cleanedList:
+        cleanedList.remove('')
+    if 'accounts' in cleanedList:
+        cleanedList.remove('accounts')
+    if USERNAME in cleanedList:
+        cleanedList.remove(USERNAME)
+    if 'explore' in cleanedList:
+        cleanedList.remove('explore')
 
     dictionary = {'userhandles': cleanedList}
 
